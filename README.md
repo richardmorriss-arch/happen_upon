@@ -54,4 +54,4 @@ Because the entire application lives inside `index.html`, customization requires
 
 ### License
 
-Distributed under the Apache 2.0 License. See `LICENSE` for more information.
+Distributed under the MIT License. See `LICENSE` for more information.
