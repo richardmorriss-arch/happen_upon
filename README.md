@@ -1,55 +1,57 @@
 # HappenUpon // Serendipity Deck
 
-A standalone, zero-dependency dispatch console for exploring the web. Built entirely in vanilla HTML, CSS, and client-side JavaScript contained inside a single `index.html` file[cite: 2]. 
+A standalone, zero-dependency dispatch terminal for rediscovering the open web.
 
-No build tools, no package managers, and no backend configuration required.
-
----
-
-## Channels
-
-* **Pure Chaos**: An unfiltered, configurable blend across all channels[cite: 2].
-* **The Indie Web**: Handcrafted personal homepages dispatched via Wiby[cite: 2].
-* **Deep Tech**: Engineering deep-dives, simulations, utilities, and post-mortems pulled from Hacker News[cite: 2].
-* **Wormholes**: Random deep-encyclopedia rabbit holes via the Wikipedia API[cite: 2].
-* **Time Machine**: Snapshots of classic early-web domains (1996–2004) via the Internet Archive Wayback Machine[cite: 2].
-* **Cosmic Vault**: Astronomical captures pulled from NASA's Astronomy Picture of the Day (APOD) archive dating back to June 1995[cite: 2].
+HappenUpon routes you away from algorithmic feeds and into independent personal sites, engineering archives, vintage web snapshots, encyclopedia rabbit holes, and cosmic records.
 
 ---
 
-## Features
+### Channels Online
 
-* **Zero Footprint**: Runs completely in the browser with zero external npm dependencies[cite: 1, 2].
-* **Local Persistence**: Dispatch history, starred items (Vault), and channel mix settings persist exclusively in browser `localStorage`[cite: 2].
-* **Data Portability**: Export your starred Vault links as a JSON file anytime[cite: 2].
-* **Industrial UI**: Cyberdeck-inspired interface styled with pure CSS[cite: 2].
+* **Pure Chaos:** Dynamic multi-frequency blend configured via onboard toggles.
+* **The Indie Web:** Handcrafted personal homepages via Wiby.
+* **Deep Tech:** Long-form engineering discussions, utilities, and post-mortems via Hacker News archives.
+* **Wormholes:** Deep rabbit holes powered by the Wikipedia REST API.
+* **Time Machine:** Preserved 1996–2004 website snapshots via the Wayback Machine.
+* **Cosmic Vault:** NASA Astronomy Picture of the Day archives (1995–present).
 
 ---
 
-## Quick Start
+### Architecture & Privacy
 
-### 1. Run Locally
+* **Zero Dependencies:** Single-file vanilla HTML, CSS, and modern JavaScript. No bundlers, frameworks, build steps, or `node_modules`.
+* **Zero Tracking / BYOC:** No third-party analytics or server backends.
+* **Local Persistence:** Dispatch logs, starred vault bookmarks, and chaos mixing profiles live entirely inside your browser's `localStorage`. Export your starred vault anytime as a standalone JSON file.
+
+---
+
+### Quick Start
+
+#### Option 1: Run Locally (Instant)
 1. Clone or download this repository.
-2. Double-click `index.html` to open it directly in any modern browser[cite: 2].
+2. Double-click `index.html` to run it in any modern browser.
 
-### 2. Deploy to GitHub Pages (Free Hosting)
-1. Fork or push this repository to your GitHub account.
-2. Navigate to **Settings > Pages**.
-3. Under **Build and deployment**, select **Deploy from a branch**.
-4. Choose the `main` branch and `/ (root)` folder, then click **Save**.
-5. Your live app will be accessible at `https://<your-username>.github.io/<repo-name>/`.
+#### Option 2: Host via GitHub Pages (Free 60-Second Deploy)
+1. Fork this repository to your GitHub account.
+2. Navigate to **Settings** > **Pages**.
+3. Under **Build and deployment**, set **Source** to `Deploy from a branch`.
+4. Select `main` branch and `/ (root)` folder, then click **Save**.
+5. Your instance will go live at `https://<your-username>.github.io/<repo-name>/`.
 
----
-
-## Customization
-
-Because everything is contained in `index.html`[cite: 2], customization requires only basic HTML/JS edits:
-* **Vintage Domain List**: Add or swap out target retro domains inside the `vintageDomains` array in the `bounceRetro()` function[cite: 2].
-* **Chaos Weights**: Adjust the default mix flags inside the `defaultMix` object[cite: 2].
-* **Custom Endpoints**: Wire up your own RSS feeds, APIs, or static link dictionaries by dropping a new bounce function into the master dispatcher[cite: 2].
+#### Option 3: Deploy to Vercel / Cloudflare Pages
+Drop the repository into a new Vercel or Cloudflare Pages project. No build commands or output directory settings required—just hit deploy.
 
 ---
 
-## License
+### Modifying the Deck
 
-This project is open-source and available under the [MIT License](LICENSE).
+Because the entire application lives inside `index.html`, customization requires zero tooling:
+* Add custom vintage domains inside `bounceRetro()`.
+* Tweak Hacker News API queries inside `bounceTech()`.
+* Restyle the industrial terminal aesthetics by modifying the `:root` CSS variables at the top of the file.
+
+---
+
+### License
+
+Distributed under the Apache 2.0 License. See `LICENSE` for more information.
