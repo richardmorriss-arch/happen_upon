@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HappenUpon // Serendipity Deck</title>
+  <style>
+    :root {
+      --bg: #07090c;
+      --panel-bg: #0e1217;
+      --card-bg: #141a22;
+      --border: #232d3b;
+      --border-highlight: #3b4759;
+      --text: #f0f6fc;
+      --muted: #7d8590;
+      --accent: #f97316;
+      --accent-glow: rgba(249, 115, 22, 0.35);
+      --amber: #fbbf24;
+      --led-active: #22c55e;
+      --led-glow: rgba(34, 197, 94, 0.5);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--bg);
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 1.5rem;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 650px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Top Utility Bar */
+    .nav-bar {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.25rem;
+      z-index: 50;
+    }
+
+    .icon-btn {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      transition: all 0.15s ease;
+    }
+    .icon-btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    /* Branding Header */
+    .brand-header {
+      text-align: center;
+    }
+    .brand-title {
+      font-size: 1.75rem;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .brand-title span.slash {
+      color: var(--accent);
+    }
+    .brand-tag {
+      font-size: 0.72rem;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      color: var(--muted);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-top: 0.35rem;
+    }
+
+    /* Industrial Push Button */
+    .button-bezel {
+      background: #181d24;
+      border: 2px solid #28313e;
+      border-radius: 9999px;
+      padding: 10px;
+      box-shadow: 
+        0 12px 30px rgba(0, 0, 0, 0.7),
+        inset 0 2px 4px rgba(255, 255, 255, 0.08),
+        inset 0 -2px 6px rgba(0, 0, 0, 0.6);
+    }
+
+    button#happenBtn {
+      background: linear-gradient(180deg, #fb923c 0%, #ea580c 100%);
+      color: #fff;
+      border: none;
+      padding: 1.5rem 3.8rem;
+      font-size: 1.9rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      border-radius: 9999px;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 
+        0 6px 0 #9a3412,
+        0 10px 25px rgba(249, 115, 22, 0.5),
+        inset 0 1px 2px rgba(255, 255, 255, 0.4);
+      transition: all 0.08s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    button#happenBtn:hover {
+      background: linear-gradient(180deg, #fdba74 0%, #ea580c 100%);
+      box-shadow: 
+        0 6px 0 #9a3412,
+        0 12px 30px rgba(249, 115, 22, 0.7),
+        inset 0 1px 2px rgba(255, 255, 255, 0.5);
+    }
+    button#happenBtn:active {
+      transform: translateY(4px);
+      box-shadow: 
+        0 2px 0 #9a3412,
+        0 4px 15px rgba(249, 115, 22, 0.4);
+    }
+    button#happenBtn:disabled {
+      background: #374151;
+      box-shadow: 0 4px 0 #1f2937;
+      color: #9ca3af;
+      cursor: wait;
+    }
+
+    /* Teletype / Status Panel */
+    .status-panel {
+      background: #080b0e;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+    .status-prompt {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+    #status {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: left;
+      flex: 1;
+    }
+
+    /* 6-Channel Frequency Deck */
+    .channel-deck {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.4rem;
+      width: 100%;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .channel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.6rem;
+    }
+
+    .channels-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.85rem;
+    }
+
+    @media (max-width: 480px) {
+      .channels-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .channel-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.9rem 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+    .channel-btn .btn-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .channel-btn span.title {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.9rem;
+      letter-spacing: 0.02em;
+    }
+    .channel-btn span.desc {
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.3;
+    }
+
+    .led {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #272f3d;
+      transition: all 0.2s ease;
+    }
+
+    .channel-btn:hover { border-color: var(--border-highlight); }
+    .channel-btn.active {
+      background: rgba(249, 115, 22, 0.08);
+      border-color: var(--accent);
+    }
+    .channel-btn.active span.title { color: var(--accent); }
+    .channel-btn.active .led {
+      background: var(--led-active);
+      box-shadow: 0 0 8px var(--led-glow);
+    }
+
+    /* Drawer Styles */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(3px);
+      z-index: 90;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      background: var(--panel-bg);
+      border-left: 1px solid var(--border);
+      z-index: 100;
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drawer-tabs { display: flex; gap: 0.4rem; }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      padding: 0.45rem 0.8rem;
+      font-size: 0.85rem;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active {
+      color: var(--accent);
+      background: rgba(249, 115, 22, 0.12);
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .close-btn:hover { color: var(--text); }
+
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .panel-view { display: none; }
+    .panel-view.active { display: block; }
+
+    .feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .feed-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.6rem;
+    }
+
+    .item-main {
+      flex: 1;
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .item-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .item-title:hover { color: var(--accent); }
+
+    .item-meta {
+      display: flex;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    .channel-tag {
+      background: #1c232d;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-size: 0.65rem;
+    }
+
+    .star-btn {
+      background: none;
+      border: none;
+      color: #3b4252;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.1rem;
+      transition: color 0.15s;
+    }
+    .star-btn:hover { color: var(--amber); }
+    .star-btn.starred { color: var(--amber); }
+
+    .empty-msg {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      padding: 2.5rem 0;
+    }
+
+    .setting-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+    .setting-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.6rem;
+    }
+    .setting-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+    .btn-danger {
+      background: #181d24;
+      border: 1px solid #7f1d1d;
+      color: #f87171;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn-danger:hover { background: #991b1b; color: #fff; }
+
+    .btn-secondary {
+      background: #181d24;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 0.6rem;
+    }
+    .btn-secondary:hover { border-color: var(--border-highlight); }
+  </style>
+</head>
+<body>
+
+  <div class="nav-bar">
+    <button class="icon-btn" id="openDrawerBtn">
+      <span>LOGS & VAULT</span>
+      <span>☰</span>
+    </button>
+  </div>
+
+  <div class="container">
+    <div class="brand-header">
+      <div class="brand-title">HAPPEN<span class="slash">//</span>UPON</div>
+      <div class="brand-tag">DISPATCH_ENGINE :: v0.3</div>
+    </div>
+
+    <div class="button-bezel">
+      <button id="happenBtn">HAPPEN</button>
+    </div>
+
+    <div class="status-panel">
+      <span class="status-prompt">&gt;</span>
+      <div id="status">Ready. Select frequency and fire.</div>
+    </div>
+
+    <div class="channel-deck">
+      <div class="channel-header">
+        <span>Channel Matrix</span>
+        <span>STATUS: 6 CHANNELS ONLINE</span>
+      </div>
+      <div class="channels-grid">
+        <button class="channel-btn active" data-channel="chaos">
+          <div class="btn-top">
+            <span class="title">Pure Chaos</span>
+            <span class="led"></span>
+          </div>
+          <span class="desc">Unfiltered frequency blend</span>
+        </button>
+
+        <button class="channel-btn" data-channel="indie">
+          <div class="btn-top">
+            <span class="title">The Indie Web</span>
+            <span class="led"></span>
+          </div>
+          <span class="desc">Handcrafted personal homepages</span>
+        </button>
+
+        <button class="channel-btn" data-channel="tech">
+          <div class="btn-top">
+            <span class="title">Deep Tech</span>
+            <span class="led"></span>
+          </div>
+          <span class="desc">Sims, utilities & post-mortems</span>
+        </button>
+
+        <button class="channel-btn" data-channel="wiki">
+          <div class="btn-top">
+            <span class="title">Wormholes</span>
+            <span class="led"></span>
+          </div>
+          <span class="desc">Deep encyclopedia rabbit holes</span>
+        </button>
+
+        <button class="channel-btn" data-channel="retro">
+          <div class="btn-top">
+            <span class="title">Time Machine</span>
+            <span class="led"></span>
+          </div>
+          <span class="desc">1996–2004 web snapshots</span>
+        </button>
+
+        <button class="channel-btn" data-channel="apod">
+          <div class="btn-top">
+            <span class="title">Cosmic Vault</span>
+            <span class="led"></span>
+          </div>
+          <span class="desc">NASA APOD archives (1995–Pres)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drawer Interface -->
+  <div class="drawer-overlay" id="overlay"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-tabs">
+        <button class="tab-btn active" data-tab="history">HISTORY</button>
+        <button class="tab-btn" data-tab="vault">VAULT</button>
+        <button class="tab-btn" data-tab="settings">DECK</button>
+      </div>
+      <button class="close-btn" id="closeDrawerBtn">×</button>
+    </div>
+
+    <div class="drawer-body">
+      <div class="panel-view active" id="historyPanel">
+        <div class="feed-list" id="historyList"></div>
+      </div>
+
+      <div class="panel-view" id="vaultPanel">
+        <div class="feed-list" id="vaultList"></div>
+      </div>
+
+      <div class="panel-view" id="settingsPanel">
+        <div class="setting-group">
+          <label>Chaos Mix Composition</label>
+          <div class="setting-row">
+            <input type="checkbox" id="mixIndie" checked>
+            <span>Include Indie Web</span>
+          </div>
+          <div class="setting-row">
+            <input type="checkbox" id="mixTech" checked>
+            <span>Include Deep Tech</span>
+          </div>
+          <div class="setting-row">
+            <input type="checkbox" id="mixWiki" checked>
+            <span>Include Wormholes</span>
+          </div>
+          <div class="setting-row">
+            <input type="checkbox" id="mixRetro" checked>
+            <span>Include Time Machine (Wayback)</span>
+          </div>
+          <div class="setting-row">
+            <input type="checkbox" id="mixApod" checked>
+            <span>Include Cosmic Vault (NASA APOD)</span>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label>Storage Operations</label>
+          <button class="btn-secondary" id="exportBtn">Export Vault as JSON</button>
+          <button class="btn-danger" id="clearHistoryBtn">Flush Dispatched History</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    let history = JSON.parse(localStorage.getItem("happenupon_history") || "[]");
+    let currentChannel = "chaos";
+
+    // 5-Frequency Chaos Configuration
+    const defaultMix = { indie: true, tech: true, wiki: true, retro: true, apod: true };
+    let chaosMix = Object.assign(defaultMix, JSON.parse(localStorage.getItem("happenupon_chaos_mix") || "{}"));
+
+    const btn = document.getElementById("happenBtn");
+    const status = document.getElementById("status");
+    const channelButtons = document.querySelectorAll(".channel-btn");
+
+    const drawer = document.getElementById("drawer");
+    const overlay = document.getElementById("overlay");
+    const openDrawerBtn = document.getElementById("openDrawerBtn");
+    const closeDrawerBtn = document.getElementById("closeDrawerBtn");
+    const tabBtns = document.querySelectorAll(".tab-btn");
+    const panels = document.querySelectorAll(".panel-view");
+
+    const historyList = document.getElementById("historyList");
+    const vaultList = document.getElementById("vaultList");
+    const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+    const exportBtn = document.getElementById("exportBtn");
+
+    const mixIndie = document.getElementById("mixIndie");
+    const mixTech = document.getElementById("mixTech");
+    const mixWiki = document.getElementById("mixWiki");
+    const mixRetro = document.getElementById("mixRetro");
+    const mixApod = document.getElementById("mixApod");
+
+    mixIndie.checked = chaosMix.indie;
+    mixTech.checked = chaosMix.tech;
+    mixWiki.checked = chaosMix.wiki;
+    mixRetro.checked = chaosMix.retro;
+    mixApod.checked = chaosMix.apod;
+
+    [mixIndie, mixTech, mixWiki, mixRetro, mixApod].forEach(box => {
+      box.addEventListener("change", () => {
+        chaosMix.indie = mixIndie.checked;
+        chaosMix.tech = mixTech.checked;
+        chaosMix.wiki = mixWiki.checked;
+        chaosMix.retro = mixRetro.checked;
+        chaosMix.apod = mixApod.checked;
+        localStorage.setItem("happenupon_chaos_mix", JSON.stringify(chaosMix));
+      });
+    });
+
+    // Drawer Mechanics
+    function openDrawer() {
+      drawer.classList.add("open");
+      overlay.classList.add("open");
+      renderPanels();
+    }
+    function closeDrawer() {
+      drawer.classList.remove("open");
+      overlay.classList.remove("open");
+    }
+    openDrawerBtn.addEventListener("click", openDrawer);
+    closeDrawerBtn.addEventListener("click", closeDrawer);
+    overlay.addEventListener("click", closeDrawer);
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tabBtns.forEach(b => b.classList.remove("active"));
+        panels.forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(`${btn.dataset.tab}Panel`).classList.add("active");
+      });
+    });
+
+    channelButtons.forEach(b => {
+      b.addEventListener("click", () => {
+        channelButtons.forEach(btn => btn.classList.remove("active"));
+        b.classList.add("active");
+        currentChannel = b.getAttribute("data-channel");
+        status.textContent = `Channel locked: ${b.querySelector(".title").textContent}`;
+      });
+    });
+
+    function logItem(url, title, channel) {
+      const item = {
+        id: Date.now().toString(),
+        url,
+        title,
+        channel,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        starred: false
+      };
+      history.unshift(item);
+      if (history.length > 100) history.pop();
+      saveHistory();
+    }
+
+    function saveHistory() {
+      localStorage.setItem("happenupon_history", JSON.stringify(history));
+      renderPanels();
+    }
+
+    function toggleStar(id) {
+      const match = history.find(item => item.id === id);
+      if (match) {
+        match.starred = !match.starred;
+        saveHistory();
+      }
+    }
+
+    function renderPanels() {
+      if (history.length === 0) {
+        historyList.innerHTML = `<div class="empty-msg">&lt; NO_DISPATCHES_LOGGED &gt;</div>`;
+      } else {
+        historyList.innerHTML = history.map(item => createItemHTML(item)).join("");
+      }
+
+      const starred = history.filter(i => i.starred);
+      if (starred.length === 0) {
+        vaultList.innerHTML = `<div class="empty-msg">&lt; VAULT_IS_EMPTY // STAR ITEMS TO PIN &gt;</div>`;
+      } else {
+        vaultList.innerHTML = starred.map(item => createItemHTML(item)).join("");
+      }
+
+      document.querySelectorAll(".star-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggleStar(btn.dataset.id);
+        });
+      });
+    }
+
+    function createItemHTML(item) {
+      return `
+        <div class="feed-item">
+          <div class="item-main">
+            <a href="${item.url}" target="_blank" class="item-title" title="${item.title}">${item.title}</a>
+            <div class="item-meta">
+              <span class="channel-tag">${item.channel}</span>
+              <span>${item.timestamp}</span>
+            </div>
+          </div>
+          <button class="star-btn ${item.starred ? 'starred' : ''}" data-id="${item.id}">
+            ★
+          </button>
+        </div>
+      `;
+    }
+
+    clearHistoryBtn.addEventListener("click", () => {
+      history = history.filter(i => i.starred);
+      saveHistory();
+    });
+
+    exportBtn.addEventListener("click", () => {
+      const starred = history.filter(i => i.starred);
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(starred, null, 2));
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `happenupon-vault-${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    });
+
+    // --- ENGINES ---
+
+    // 1. Indie Web
+    function bounceIndie() {
+      status.textContent = "Dispatched: The Indie Web (Wiby)";
+      const targetUrl = "https://wiby.me/surprise/";
+      logItem(targetUrl, "Indie Web Discovery (Wiby)", "indie");
+      window.open(targetUrl, "_blank");
+    }
+
+    // 2. Deep Tech (Hacker News)
+    async function bounceTech() {
+      status.textContent = "Scanning engineering archives...";
+      btn.disabled = true;
+
+      try {
+        const endpoints = [
+          "https://hacker-news.firebaseio.com/v0/beststories.json",
+          "https://hacker-news.firebaseio.com/v0/showstories.json"
+        ];
+        const targetEndpoint = endpoints[Math.floor(Math.random() * endpoints.length)];
+        const res = await fetch(targetEndpoint);
+        const storyIds = await res.json();
+
+        for (let attempt = 0; attempt < 8; attempt++) {
+          const randomId = storyIds[Math.floor(Math.random() * storyIds.length)];
+          const itemRes = await fetch(`https://hacker-news.firebaseio.com/v0/item/${randomId}.json`);
+          const item = await itemRes.json();
+
+          if (item && item.url && !item.url.includes("news.ycombinator.com")) {
+            status.textContent = `Dispatched: "${item.title}"`;
+            logItem(item.url, item.title, "tech");
+            window.open(item.url, "_blank");
+            btn.disabled = false;
+            return;
+          }
+        }
+        throw new Error("Link resolution timeout");
+      } catch (err) {
+        console.warn("Tech bounce fallback:", err);
+        bounceIndie();
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // 3. Wormholes (Wikipedia)
+    async function bounceWiki() {
+      status.textContent = "Descending into knowledge wormhole...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch("https://en.wikipedia.org/api/rest_v1/page/random/summary");
+        const data = await res.json();
+
+        if (data && data.content_urls && data.content_urls.desktop) {
+          status.textContent = `Dispatched: "${data.title}"`;
+          logItem(data.content_urls.desktop.page, data.title, "wiki");
+          window.open(data.content_urls.desktop.page, "_blank");
+        } else {
+          throw new Error("Wiki format error");
+        }
+      } catch (err) {
+        console.warn("Wiki fallback:", err);
+        bounceIndie();
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // 4. Time Machine (Wayback 1996-2004)
+    function bounceRetro() {
+      status.textContent = "Warping back in digital time...";
+
+      const vintageDomains = [
+        "slashdot.org", "totse.com", "artbell.com", "spacejam.com",
+        "anandtech.com", "tomshardware.com", "penny-arcade.com", "newgrounds.com",
+        "somethingawful.com", "gamespot.com", "hardocp.com", "arstechnica.com",
+        "overclockers.com", "homestarrunner.com", "shacknews.com", "bluesnews.com",
+        "planethalflife.com", "planetquake.com", "avsforum.com", "fark.com",
+        "straightdope.com", "snopes.com", "howstuffworks.com", "metafilter.com",
+        "kuro5hin.org", "theforce.net", "theonion.com", "hamradio-online.com"
+      ];
+
+      const domain = vintageDomains[Math.floor(Math.random() * vintageDomains.length)];
+      // Random year between 1996 and 2004
+      const year = Math.floor(Math.random() * (2004 - 1996 + 1)) + 1996;
+      const targetUrl = `https://web.archive.org/web/${year}/${domain}`;
+      const title = `${domain} [Wayback Snapshot :: ${year}]`;
+
+      status.textContent = `Dispatched: ${title}`;
+      logItem(targetUrl, title, "retro");
+      window.open(targetUrl, "_blank");
+    }
+
+    // 5. Cosmic Vault (NASA APOD Chrono-Bounce)
+    function bounceApod() {
+      status.textContent = "Calibrating astronomical coordinates...";
+
+      // APOD epoch starts June 16, 1995
+      const startEpoch = new Date("1995-06-16T00:00:00Z").getTime();
+      const endEpoch = Date.now();
+      const randomEpoch = Math.floor(Math.random() * (endEpoch - startEpoch)) + startEpoch;
+      const d = new Date(randomEpoch);
+
+      const year = d.getUTCFullYear();
+      const yy = String(year).slice(-2);
+      const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(d.getUTCDate()).padStart(2, '0');
+
+      const targetUrl = `https://apod.nasa.gov/apod/ap${yy}${mm}${dd}.html`;
+      const title = `NASA APOD Dispatch [${year}-${mm}-${dd}]`;
+
+      status.textContent = `Dispatched: ${title}`;
+      logItem(targetUrl, title, "apod");
+      window.open(targetUrl, "_blank");
+    }
+
+    // Master Dispatcher
+    async function happen() {
+      let active = currentChannel;
+
+      if (active === "chaos") {
+        const pool = [];
+        if (chaosMix.indie) pool.push("indie");
+        if (chaosMix.tech) pool.push("tech");
+        if (chaosMix.wiki) pool.push("wiki");
+        if (chaosMix.retro) pool.push("retro");
+        if (chaosMix.apod) pool.push("apod");
+        active = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : "indie";
+      }
+
+      switch (active) {
+        case "indie": bounceIndie(); break;
+        case "tech": await bounceTech(); break;
+        case "wiki": await bounceWiki(); break;
+        case "retro": bounceRetro(); break;
+        case "apod": bounceApod(); break;
+      }
+    }
+
+    btn.addEventListener("click", happen);
+  </script>
+</body>
+</html>
